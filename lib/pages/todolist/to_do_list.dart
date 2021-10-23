@@ -1,24 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'list_model.dart';
+import 'package:todoapp/Utilities/models/data_classes.dart';
+import 'package:intl/intl.dart';
 
 part 'task_handling.dart';
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ChangeNotifierProvider(
-        create: (context) => ListModel(),
-        builder: (context, _ ) => const MyToDoList(),
-      ),
-    );
-  }
-}
-
 
 
 class MyToDoList extends StatefulWidget {
@@ -31,38 +17,45 @@ class _MyToDoListState extends State<MyToDoList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-            "To Do list"
-        ),
-      ),
-      body: Consumer<ListModel>(
-        builder: (context, toDoList, child){
-          return ListView.builder(
+    return Consumer<ListModel>(
+      builder: (context, toDoList, child){
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("To Do list"),
+          ),
+          body: ListView.builder(
             itemCount: toDoList.tasks.length,
-            itemBuilder: (context, index){
-              return ListTile(title: Text(toDoList.tasks[index].title),);
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: GestureDetector(
+                    child: Text(toDoList.tasks[index].title),
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (context){
+                            return TaskEditor(
+                              task: toDoList.tasks[index],
+                              listModel: toDoList,
+                            );
+                          }
+                      );
+                    }
+                ),
+              );
             },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: (){
-          showDialog(
-              context: context,
-              builder: (context){
-                return Scaffold(
-                  appBar: AppBar(
-                    title: const Text("Add Task"),
-                  ),
-                  body: taskInsertionSequence(),
-                );
-              }
-          );
-        },
-      ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return TaskEditor(listModel: toDoList,);
+                  });
+            },
+          ),
+        );
+      },
     );
   }
 }
